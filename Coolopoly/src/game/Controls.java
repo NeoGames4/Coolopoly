@@ -10,7 +10,9 @@ public class Controls implements KeyListener {
 			S_DOWN = false,
 			D_DOWN = false,
 			X_DOWN = false,
-			Y_DOWN = false;
+			Y_DOWN = false,
+			Q_DOWN = false,
+			E_DOWN = false;
 
 	public Controls() { }
 
@@ -43,6 +45,12 @@ public class Controls implements KeyListener {
 				break;
 			case KeyEvent.VK_Y:
 				Y_DOWN = state;
+				break;
+			case KeyEvent.VK_Q:
+				Q_DOWN = state;
+				break;
+			case KeyEvent.VK_E:
+				E_DOWN = state;
 				break;
 		}
 	}

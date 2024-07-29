@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +25,7 @@ public class Display extends JFrame {
 	
 	public final UI ui;
 	
-	public final Queue<Element> uiElements;
+	public Queue<UIElement> uiElements;
 	
 	public final Camera camera;
 
@@ -50,6 +51,7 @@ public class Display extends JFrame {
 		setLocationRelativeTo(null);
 		
 		ui = new UI();
+		uiElements = new LinkedList<>();
 		setContentPane(ui);
 		
 		addKeyListener(new Controls());
@@ -86,6 +88,14 @@ public class Display extends JFrame {
 			camera.x += dx*Constants.CAMERA_MOVEMENT_SPEED/ui.fps;
 			camera.y += dy*Constants.CAMERA_MOVEMENT_SPEED/ui.fps;
 			
+			// ROTATION
+			float dangle = 0;
+			
+			if(Controls.Q_DOWN) dangle--;
+			if(Controls.E_DOWN) dangle++;
+			
+			camera.angle += dangle*Constants.CAMERA_ROTATION_SPEED/ui.fps;
+			
 			// CAMERA ZOOM
 			float dz = 0;
 			
@@ -97,7 +107,7 @@ public class Display extends JFrame {
 			else if(camera.zoom > Constants.MAX_CAMERA_ZOOM) camera.zoom = Constants.MAX_CAMERA_ZOOM;
 			
 			if(Constants.DEBUG)
-				System.out.println("\nFPS: " + ui.fps + "\nx: " + camera.x + "\ny: " + camera.y + "\nZoom: " + camera.zoom);
+				System.out.println("\nFPS: " + ui.fps + "\nx: " + camera.x + "\ny: " + camera.y + "\nRotation: " + camera.angle + "\nZoom: " + camera.zoom);
 		}
 		
 		camera.update();
@@ -144,7 +154,11 @@ public class Display extends JFrame {
 			float cX = camera.x*cZoom;
 			float cY = camera.y*cZoom;
 			
+			g2.rotate(camera.angle, getWidth()/2, getHeight()/2);
+			
 			g2.drawImage(boardImage, (int) (cX - boardW/2 + getWidth()/2), (int) (cY - boardW/2 + getHeight()/2), boardW, boardW, null);
+			
+			g2.rotate(-camera.angle, getWidth()/2, getHeight()/2);
 		}
 		
 	}
