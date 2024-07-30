@@ -3,6 +3,7 @@ package launcher;
 
 public class Constants {
 	
+	// TECHNICAL
 	public static final String GAME_TITLE = "Coolopoly",
 			GAME_VERSION = "0.0.0";
 	
@@ -16,5 +17,14 @@ public class Constants {
 			CAMERA_ZOOM_SPEED = 1.0f;
 	
 	public static final boolean DEBUG = true;
+	
+	// BOARD
+	public static final int BOARD_FIELDS_AMOUNT = 36;
+	
+	public static final float BOARD_FIELDS_WIDTH_FACTOR = 0.1f,
+			BOARD_FIELD_FOCUS_ZOOM = 0.5f;
+	
+	// GAME
+	public static final int STARTING_MONEY = 1500;
 
 }

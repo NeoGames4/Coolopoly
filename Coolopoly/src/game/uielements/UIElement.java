@@ -1,9 +1,10 @@
-package game;
+package game.uielements;
 
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
+
+import game.Display;
 
 public abstract class UIElement {
 	
@@ -12,13 +13,13 @@ public abstract class UIElement {
 	public float width;
 	public float height;
 	
-	Queue<UIElement> children;
+	ArrayList<UIElement> children;
 	
 	public UIElement(float x, float y, float width, float height) {
-		this(x, y, width, height, new LinkedList<>());
+		this(x, y, width, height, new ArrayList<>());
 	}
 	
-	public UIElement(float x, float y, float width, float height, Queue<UIElement> children) {
+	public UIElement(float x, float y, float width, float height, ArrayList<UIElement> children) {
 		this.x = x;
 		this.y = y;
 		this.width = width;

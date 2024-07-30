@@ -5,19 +5,20 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import game.uielements.Board;
+import game.uielements.UIElement;
 import launcher.Constants;
-import launcher.Launcher;
 
 public class Display extends JFrame {
 
@@ -25,7 +26,7 @@ public class Display extends JFrame {
 	
 	public final UI ui;
 	
-	public Queue<UIElement> uiElements;
+	public ArrayList<UIElement> uiElements;
 	
 	public final Camera camera;
 
@@ -42,6 +43,11 @@ public class Display extends JFrame {
 				System.exit(0);
 			}
 		});
+		addComponentListener(new ComponentAdapter() {		// TODO camera position correction
+			@Override
+			public void componentResized(ComponentEvent e) {
+			}
+		});
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		if(!Constants.DEBUG)
@@ -51,11 +57,11 @@ public class Display extends JFrame {
 		setLocationRelativeTo(null);
 		
 		ui = new UI();
-		uiElements = new LinkedList<>();
 		setContentPane(ui);
+		uiElements = new ArrayList<>();
 		
 		addKeyListener(new Controls());
-		setFocusTraversalKeysEnabled(true);
+		setFocusTraversalKeysEnabled(false);
 		setAutoRequestFocus(true);
 		
 		camera = new Camera();
@@ -68,16 +74,18 @@ public class Display extends JFrame {
 		}, 50, (int) (1000d/Constants.FPS), TimeUnit.MILLISECONDS);
 	}
 	
+	int currentPosition = 0;			// TODO temporary
+	
 	public void updateGame() {
 		if(camera.freeMovement) {
 			// CAMERA MOVEMENT
 			float dx = 0;
 			float dy = 0;
 			
-			if(Controls.W_DOWN) dy++;
-			if(Controls.A_DOWN) dx++;
-			if(Controls.S_DOWN) dy--;
-			if(Controls.D_DOWN) dx--;
+			if(Controls.W_DOWN) dy--;
+			if(Controls.A_DOWN) dx--;
+			if(Controls.S_DOWN) dy++;
+			if(Controls.D_DOWN) dx++;
 			
 			if(dx != 0 && dy != 0) {
 				float f = (float) Math.sqrt(2);
@@ -91,8 +99,8 @@ public class Display extends JFrame {
 			// ROTATION
 			float dangle = 0;
 			
-			if(Controls.Q_DOWN) dangle--;
-			if(Controls.E_DOWN) dangle++;
+			if(Controls.Q_DOWN) dangle++;
+			if(Controls.E_DOWN) dangle--;
 			
 			camera.angle += dangle*Constants.CAMERA_ROTATION_SPEED/ui.fps;
 			
@@ -107,7 +115,16 @@ public class Display extends JFrame {
 			else if(camera.zoom > Constants.MAX_CAMERA_ZOOM) camera.zoom = Constants.MAX_CAMERA_ZOOM;
 			
 			if(Constants.DEBUG)
-				System.out.println("\nFPS: " + ui.fps + "\nx: " + camera.x + "\ny: " + camera.y + "\nRotation: " + camera.angle + "\nZoom: " + camera.zoom);
+				System.out.println("\nFPS: " + ui.fps + "\nx: " + camera.x + "\ny: " + camera.y + "\nRotation: " + camera.angle + "\nZoom: " + camera.zoom + "\nBoard size: " + ui.board.width + ", " + ui.board.height + "\nBoard position: " + (currentPosition-1));
+		}
+		
+		if(Controls.TAB_DOWN)
+			camera.transitionTo(new CameraState(0, 0, 0, 0), 500);
+		else if(Controls.F_DOWN) {
+			if(currentPosition > 35)
+				currentPosition = 0;
+			if(camera.transitionTo(ui.board.getCameraStateFocus(currentPosition), 200))
+				currentPosition++;
 		}
 		
 		camera.update();
@@ -117,14 +134,14 @@ public class Display extends JFrame {
 		
 		private static final long serialVersionUID = 1L;
 		
-		private final BufferedImage boardImage;
+		private final Board board;
 		
 		public float fps = Constants.FPS;
 		public long latestFrame = System.currentTimeMillis();
 
 		public UI() {
 			super();
-			boardImage = Launcher.getImage("grid.png");
+			board = new Board();
 		}
 		
 		public void update() {
@@ -148,17 +165,12 @@ public class Display extends JFrame {
 			g2.fillRect(0, 0, getWidth(), getHeight());
 			
 			// BOARD
-			float cZoom = (float) Math.exp(camera.zoom);
+			board.paint(g2, Display.this);
 			
-			final int boardW = (int) (Math.min(getWidth(), getHeight())*cZoom);
-			float cX = camera.x*cZoom;
-			float cY = camera.y*cZoom;
-			
-			g2.rotate(camera.angle, getWidth()/2, getHeight()/2);
-			
-			g2.drawImage(boardImage, (int) (cX - boardW/2 + getWidth()/2), (int) (cY - boardW/2 + getHeight()/2), boardW, boardW, null);
-			
-			g2.rotate(-camera.angle, getWidth()/2, getHeight()/2);
+			// UI ELEMENTS
+			for(UIElement e : uiElements) {
+				e.paint(g2, Display.this);
+			}
 		}
 		
 	}
