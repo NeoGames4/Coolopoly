@@ -2,7 +2,7 @@ package game.coolopoly;
 
 import java.util.ArrayList;
 
-import launcher.Constants;
+import misc.Constants;
 
 public class Player {
 	

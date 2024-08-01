@@ -8,16 +8,22 @@ import game.Camera;
 import game.CameraState;
 import game.Display;
 import game.Display.UI;
-import launcher.Constants;
+import game.coolopoly.Player;
 import launcher.Launcher;
+import misc.Constants;
 
 public class Board extends UIElement {
 	
+	public final Player player;
+	
 	private final BufferedImage boardImage;
 
-	public Board() {
+	public Board(String playerName) {
 		super(0, 0, 0, 0);
-		boardImage = Launcher.getImage("grid.png");
+		
+		player = new Player(playerName);
+		
+		boardImage = Launcher.getImage("board.png");
 		width = height = boardImage.getWidth();
 	}
 	
@@ -82,6 +88,10 @@ public class Board extends UIElement {
 		g2.drawImage(boardImage, (int) (cX - dWidth/2 + ui.getWidth()/2), (int) (cY - dWidth/2 + ui.getHeight()/2), (int) dWidth, (int) dWidth, null);
 		
 		g2.rotate(-cAngle, ui.getWidth()/2, ui.getHeight()/2);
+	}
+	
+	public static float distanceBetween(Vector2D a, Vector2D b) {
+		return (float) Math.sqrt(Math.pow(a.x-b.x, 2) + Math.pow(a.y-b.y, 2));
 	}
 
 }

@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 
 import game.uielements.Board;
 import game.uielements.UIElement;
-import launcher.Constants;
+import misc.Constants;
 
 public class Display extends JFrame {
 
@@ -74,8 +74,6 @@ public class Display extends JFrame {
 		}, 50, (int) (1000d/Constants.FPS), TimeUnit.MILLISECONDS);
 	}
 	
-	int currentPosition = 0;			// TODO temporary
-	
 	public void updateGame() {
 		if(camera.freeMovement) {
 			// CAMERA MOVEMENT
@@ -115,16 +113,25 @@ public class Display extends JFrame {
 			else if(camera.zoom > Constants.MAX_CAMERA_ZOOM) camera.zoom = Constants.MAX_CAMERA_ZOOM;
 			
 			if(Constants.DEBUG)
-				System.out.println("\nFPS: " + ui.fps + "\nx: " + camera.x + "\ny: " + camera.y + "\nRotation: " + camera.angle + "\nZoom: " + camera.zoom + "\nBoard size: " + ui.board.width + ", " + ui.board.height + "\nBoard position: " + (currentPosition-1));
+				System.out.println("\nFPS: " + ui.fps + "\nx: " + camera.x + "\ny: " + camera.y + "\nRotation: " + camera.angle + "\nZoom: " + camera.zoom + "\nBoard size: " + ui.board.width + ", " + ui.board.height + "\nPlayer position: " + ui.board.player.position);
 		}
 		
-		if(Controls.TAB_DOWN)
-			camera.transitionTo(new CameraState(0, 0, 0, 0), 500);
-		else if(Controls.F_DOWN) {
-			if(currentPosition > 35)
-				currentPosition = 0;
-			if(camera.transitionTo(ui.board.getCameraStateFocus(currentPosition), 200))
-				currentPosition++;
+		if(Controls.TAB_DOWN) {
+			long now = System.currentTimeMillis();
+			CameraTransitionsBuilder tBuilder = new CameraTransitionsBuilder(camera)
+					.withATransitions(
+							new Transition(camera.angle, camera.angle + 270, 1000)
+					);
+			camera.transitionWith(tBuilder.build());
+		}
+		else if(Controls.F_DOWN && (camera.transition == null || camera.transition.isDone())) {
+			ui.board.player.position = (int) (Constants.BOARD_FIELDS_AMOUNT*Math.random());
+			
+			CameraState focusPosition = ui.board.getCameraStateFocus(ui.board.player.position);
+					
+			long transitionTime = Math.max((long) (Board.distanceBetween(camera.getState().getPosition(), focusPosition.getPosition())*2), 500l);
+			
+			camera.transitionTo(focusPosition, transitionTime);
 		}
 		
 		camera.update();
@@ -141,7 +148,7 @@ public class Display extends JFrame {
 
 		public UI() {
 			super();
-			board = new Board();
+			board = new Board("You");
 		}
 		
 		public void update() {

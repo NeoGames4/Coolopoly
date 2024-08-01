@@ -1,12 +1,14 @@
 package game;
 
+import game.uielements.Vector2D;
+
 public class CameraState {
 	
 	public final float x, y;
 	
 	public final float zoom;
 	
-	public final float angle;
+	public float angle;
 
 	public CameraState(float x, float y, float zoom, float angle) {
 		this.x = x;
@@ -22,6 +24,10 @@ public class CameraState {
 	public CameraState withZoom(float zoom)		{ return new CameraState(x, y, zoom, angle); }
 	
 	public CameraState withAngle(float angle)	{ return new CameraState(x, y, zoom, angle); }
+	
+	public Vector2D getPosition() {
+		return new Vector2D(x, y);
+	}
 
 	@Override
 	public boolean equals(Object object) {

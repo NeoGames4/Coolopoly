@@ -1,5 +1,5 @@
 
-package launcher;
+package misc;
 
 public class Constants {
 	
@@ -13,16 +13,16 @@ public class Constants {
 			MIN_CAMERA_ZOOM = -0.5f;
 	
 	public final static float CAMERA_MOVEMENT_SPEED = 200.0f,
-			CAMERA_ROTATION_SPEED = 1.0f,
+			CAMERA_ROTATION_SPEED = 60.0f,
 			CAMERA_ZOOM_SPEED = 1.0f;
 	
 	public static final boolean DEBUG = true;
 	
 	// BOARD
-	public static final int BOARD_FIELDS_AMOUNT = 36;
+	public static final int BOARD_FIELDS_AMOUNT = 40;
 	
-	public static final float BOARD_FIELDS_WIDTH_FACTOR = 0.1f,
-			BOARD_FIELD_FOCUS_ZOOM = 0.5f;
+	public static final float BOARD_FIELDS_WIDTH_FACTOR = 0.2f,
+			BOARD_FIELD_FOCUS_ZOOM = 0.6f;
 	
 	// GAME
 	public static final int STARTING_MONEY = 1500;
