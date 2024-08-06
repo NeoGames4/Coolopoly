@@ -6,6 +6,8 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 import game.Display;
+import misc.Constants;
+import networking.ClientCommunicator;
 
 public class Launcher {
 	
@@ -26,7 +28,16 @@ public class Launcher {
 	}
 
 	public static void main(String[] args) {
-		Display display = new Display();
+		// Display display = new Display();
+		ClientCommunicator communicator = new ClientCommunicator();
+		System.out.println("Connecting to " + Constants.SERVER_ADRESS + " and port " + Constants.SERVER_PORT + "!");
+		try {
+			communicator.connect();
+			System.out.println("Connected successfully!");
+			while(true);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

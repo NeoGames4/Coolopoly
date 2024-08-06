@@ -26,5 +26,10 @@ public class Constants {
 	
 	// GAME
 	public static final int STARTING_MONEY = 1500;
+	
+	// NETWORKING
+	public static final int SERVER_PORT = 1337;
+	
+	public static final String SERVER_ADRESS = "localhost";
 
 }

@@ -1,0 +1,13 @@
+package launcher;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class Console {
+
+	public static void log(String text) {
+		SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		System.out.println(fmt.format(new Date()) + " > " + text);
+	}
+
+}
