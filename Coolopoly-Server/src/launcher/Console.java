@@ -9,5 +9,10 @@ public class Console {
 		SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		System.out.println(fmt.format(new Date()) + " > " + text);
 	}
+	
+	public static void err(String text) {
+		SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		System.err.println(fmt.format(new Date()) + " > " + text);
+	}
 
 }

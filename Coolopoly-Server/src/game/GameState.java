@@ -25,21 +25,48 @@ public class GameState {
 	
 	public DiceState dice() throws GameIllegalMoveException {
 		if(playerDiced == null) {
-			return playerDiced = new DiceState(random.nextInt(6)+1, random.nextInt(6)+1);
+			playerDiced = new DiceState(random.nextInt(6)+1, random.nextInt(6)+1);
+			currentPlayer().changePosition(playerDiced.sum());
+			return playerDiced;
 		} else throw new GameIllegalMoveException("You already rolled the dice.");
 	}
 	
-	public boolean playerDone() {
+	public void buy() throws GameIllegalMoveException {
+		Player cPlayer = currentPlayer();
+		Property p = getProperty(cPlayer.getPosition());
+		
+		if(p == null || !p.canBeBought())
+			throw new GameIllegalMoveException("This property cannot be bought.");
+		
+		Player pOwner = getPropertyOwner(p);
+		if(cPlayer.equals(pOwner))
+			throw new GameIllegalMoveException("This property is already yours.");
+		if(pOwner != null)
+			throw new GameIllegalMoveException("This property already belongs to " + pOwner.name + ".");
+		
+		if(cPlayer.getMoney() < p.price)
+			throw new GameIllegalMoveException("You do not have enough money.");
+		
+		cPlayer.changeMoney(-p.price);
+		cPlayer.properties.put(p, 0);
+	}
+	
+	public boolean playerDiced() {
 		return playerDiced != null;
 	}
 	
-	public void nextPlayer() {
-		if(playerDone()) {
-			playerDiced = null;
-			currentTurn++;
-			if(currentTurn >= players.size())
-				currentTurn = 0;
-		}
+	public boolean playerDone() {	// TODO
+		return playerDiced != null;
+	}
+	
+	public void nextPlayer() throws GameIllegalMoveException {
+		if(!playerDone())
+			throw new GameIllegalMoveException("Please finish your turn first.");
+		
+		playerDiced = null;
+		currentTurn++;
+		if(currentTurn >= players.size())
+			currentTurn = 0;
 	}
 	
 	public Player currentPlayer() {

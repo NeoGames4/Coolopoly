@@ -1,18 +1,24 @@
 package launcher;
 
-import java.util.ArrayList;
-
-import game.GameState;
-import game.Player;
-import networking.ServerCommunicator;
+import game.Constants;
+import game.Game;
 
 public class Launcher {
 
 	public static void main(String[] args) {
-		ArrayList<Player> players = new ArrayList<>();
-		GameState game = new GameState(players, 0);
+		int players = 0;
+		
 		try {
-			ServerCommunicator communicator = new ServerCommunicator();
+			players = Integer.parseInt(args[0]);
+			if(players < 1 || players > Constants.PLAYER_NAMES.length)
+				throw new Exception();
+		} catch(Exception e) {
+			Console.err("Please pass a valid amount of players 0 < p < " + (Constants.PLAYER_NAMES.length+1) + " at the first argument.");
+			System.exit(0);
+		}
+		
+		try {
+			Game game = new Game(players);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

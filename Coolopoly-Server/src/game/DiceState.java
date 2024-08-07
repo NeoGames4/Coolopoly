@@ -11,6 +11,10 @@ public class DiceState {
 		this.diceB = diceB;
 	}
 	
+	public int sum() {
+		return diceA + diceB;
+	}
+	
 	public JSONObject toJSON() {
 		return new JSONObject()
 				.put("diceA", diceA)

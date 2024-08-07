@@ -27,6 +27,10 @@ public class Property {
 		this.mortage = mortage;
 	}
 	
+	public boolean canBeBought() {
+		return price > 0;
+	}
+	
 	public int getTaxes(int houses) {
 		return rent[houses];
 	}
