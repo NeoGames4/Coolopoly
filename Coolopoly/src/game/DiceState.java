@@ -22,6 +22,8 @@ public class DiceState {
 	}
 	
 	public static DiceState fromJSON(JSONObject o) {
+		if(o == null)
+			return null;
 		return new DiceState(o.getInt("diceA"), o.getInt("diceB"));
 	}
 

@@ -68,7 +68,7 @@ public class Player {
 		
 		return new Player(
 			o.getString("name"),
-			o.getString("remote_adress"),
+			o.getString("remote_address"),
 			o.getInt("money"),
 			o.getInt("position"),
 			properties

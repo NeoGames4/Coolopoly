@@ -76,7 +76,7 @@ public class GameState {
 	
 	public Player thisPlayer() {
 		for(Player p : players)
-			if(p.remoteAdress.equals(p))
+			if(p.name.equals(serverConnection.getUsername()))
 				return p;
 		return null;
 	}
@@ -105,7 +105,7 @@ public class GameState {
 		
 		GameState state = new GameState(connection, players, o.getInt("current_turn"));
 		
-		state.playerDiced = DiceState.fromJSON(o.getJSONObject("player_diced"));
+		state.playerDiced = DiceState.fromJSON(o.optJSONObject("player_diced"));
 		
 		return state;
 	}

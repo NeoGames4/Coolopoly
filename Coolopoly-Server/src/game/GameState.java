@@ -73,6 +73,23 @@ public class GameState {
 		return players.get(currentTurn);
 	}
 	
+	public void addPlayer(Player player) {
+		players.add(player);
+	}
+	
+	public boolean removePlayer(String username) {
+		boolean r = players.removeIf(p -> p.name.equals(username));
+		if(players.size() > 0) {
+			currentTurn %= players.size();
+		}
+		playerDiced = null;
+		return r;
+	}
+	
+	public ArrayList<Player> getPlayers() {
+		return new ArrayList<>(players);
+	}
+	
 	public Property getProperty(int fieldPosition) {
 		return Properties.properties[fieldPosition];
 	}
@@ -90,10 +107,14 @@ public class GameState {
 			p.put(player.toJSON());
 		}
 		
-		return new JSONObject()
+		JSONObject o = new JSONObject()
 				.put("players", p)
-				.put("current_turn", currentTurn)
-				.put("player_diced", playerDiced.toJSON());
+				.put("current_turn", currentTurn);
+		
+		if(playerDiced != null)
+			o.put("player_diced", playerDiced.toJSON());
+		
+		return o;
 	}
 
 }

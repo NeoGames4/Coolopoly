@@ -148,7 +148,7 @@ public class Display extends JFrame {
 			player.setPosition((int) (Constants.BOARD_FIELDS_AMOUNT*Math.random()));
 			
 			CameraState focusPosition = ui.board.getCameraStateFocus(player.getPosition());
-					
+				
 			long transitionTime = Math.max((long) (Board.distanceBetween(camera.getState().getPosition(), focusPosition.getPosition())*2), 500l);
 			
 			camera.transitionTo(focusPosition, transitionTime);

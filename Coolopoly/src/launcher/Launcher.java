@@ -3,6 +3,7 @@ package launcher;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.UnknownHostException;
 
 import javax.imageio.ImageIO;
@@ -83,8 +84,8 @@ public class Launcher {
 				
 				if(connection.getLoginState() == ServerConnection.LOGIN_SUCCESSFULL)
 					break session;
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
+			} catch (UnknownHostException | ConnectException e) {
+				OptionPane.sendExceptionPanel("Cannot connect", "Either the host is unknown or the host refused to connect with the client.\nPlease check the server address.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}			

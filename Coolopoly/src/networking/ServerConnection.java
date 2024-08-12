@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -31,11 +33,11 @@ public class ServerConnection extends Thread {
 	
 	private boolean isRunning = true;
 
-	public ServerConnection(String username, String address, int port) throws UnknownHostException, IOException {
+	public ServerConnection(String username, String address, int port) throws UnknownHostException, ConnectException, IOException {
 		connect(username, address, port);
 	}
 	
-	public ServerConnection connect(String username, String address, int port) throws UnknownHostException, IOException {
+	public ServerConnection connect(String username, String address, int port) throws UnknownHostException, ConnectException, IOException {
 		if(!isConnected()) {
 			socket = new Socket(address, port);
 			input	= new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -96,7 +98,7 @@ public class ServerConnection extends Thread {
 						throw new Exception("Invalid intent \"" + o.getString("intent") + "\".");
 				}
 			} catch(GameIllegalMoveException e) {
-				Console.err(getRemoteAdress() + " tried to move, but it is somebody else’s turn.");
+				Console.err(getRemoteAddress() + " tried to move, but it is somebody else’s turn.");
 				send(Constants.MESSAGE_INTENT_EXCEPTION, e.asJSON());
 			} catch(IOException e) {
 				e.printStackTrace();
@@ -166,7 +168,7 @@ public class ServerConnection extends Thread {
 		return username;
 	}
 	
-	public String getRemoteAdress() {
+	public String getRemoteAddress() {
 		return socket.getRemoteSocketAddress().toString();
 	}
 

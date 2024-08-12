@@ -10,15 +10,15 @@ import org.json.JSONObject;
 public class Player {
 	
 	public final String name;
-	public final String remoteAdress;
+	public final String remoteAddress;
 	private int money;
 	private int position;
 	
 	public HashMap<Property, Integer> properties;
 
-	public Player(String name, String remoteAdress) {
+	public Player(String name, String remoteAddress) {
 		this.name = name;
-		this.remoteAdress = remoteAdress;
+		this.remoteAddress = remoteAddress;
 		this.money = Constants.STARTING_MONEY;
 		this.position = 0;
 		this.properties = new HashMap<>();
@@ -71,10 +71,10 @@ public class Player {
 		
 		return new JSONObject()
 				.put("name", name)
-				.put("remote_adress", remoteAdress)
+				.put("remote_address", remoteAddress)
 				.put("money", money)
 				.put("position", position)
-				.put("properties", properties);
+				.put("properties", p);
 	}
 
 }

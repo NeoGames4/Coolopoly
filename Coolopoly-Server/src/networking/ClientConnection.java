@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import game.Constants;
 import game.Game;
 import game.GameIllegalMoveException;
+import game.Player;
 import launcher.Console;
 
 public class ClientConnection extends Thread {
@@ -63,7 +64,7 @@ public class ClientConnection extends Thread {
 						throw new Exception("Invalid intent \"" + o.getString("intent") + "\".");
 				}
 			} catch(GameIllegalMoveException e) {
-				Console.err(getRemoteAdress() + " tried to move, but it is somebody else’s turn.");
+				Console.err(getRemoteAddress() + " tried to move, but it is somebody else’s turn.");
 				send(Constants.MESSAGE_INTENT_EXCEPTION, e.asJSON());
 			} catch(IOException e) {
 				e.printStackTrace();
@@ -76,7 +77,7 @@ public class ClientConnection extends Thread {
 	}
 	
 	private void handleAction(JSONObject o) throws GameIllegalMoveException, JSONException, Exception {
-		if(!game.state.currentPlayer().remoteAdress.equals(getRemoteAdress()))
+		if(!game.state.currentPlayer().remoteAddress.equals(getRemoteAddress()))
 			throw new GameIllegalMoveException("It is not your turn.");
 		
 		switch(o.getString("action")) {
@@ -122,10 +123,8 @@ public class ClientConnection extends Thread {
 			}
 		}
 		
-		for(ClientConnection h : game.server.getClients()) {
-			if(h.equals(this))
-				continue;
-			if(newName.equalsIgnoreCase(h.username)) {
+		for(Player p : game.state.getPlayers()) {
+			if(newName.equalsIgnoreCase(p.name)) {
 				sendException("Username taken", "This username is already taken. Please try again.", Constants.MESSAGE_INTENT_LOG_IN);
 				disconnect();
 				return;
@@ -135,6 +134,8 @@ public class ClientConnection extends Thread {
 		Console.log("Granting client login request...");
 		username = newName;
 		send(Constants.MESSAGE_INTENT_LOG_IN, o);
+		game.state.addPlayer(new Player(username, getRemoteAddress()));
+		sendGameState();
 	}
 	
 	/**
@@ -175,7 +176,7 @@ public class ClientConnection extends Thread {
 		Console.log("Sent " + intent + " packet to client " + socket.getLocalAddress() + " with content " + m.toString() + ".");
 	}
 	
-	public String getRemoteAdress() {
+	public String getRemoteAddress() {
 		if(socket == null)
 			return null;
 		return socket.getRemoteSocketAddress().toString();
@@ -187,13 +188,15 @@ public class ClientConnection extends Thread {
 	
 	public void disconnect() throws IOException {
 		if(isConnected()) {
-			Console.log("Disconnecting from user \"" + username + "\" with address " + getRemoteAdress() + "...");
+			Console.log("Disconnecting from user \"" + username + "\" with address " + getRemoteAddress() + "...");
 			isRunning = false;
 			interrupt();
 			socket.close();
 			socket = null;
-			if(game.server == null || !game.server.leaveClient(this))
-				throw new RuntimeException("Cannot leave client.");
+			if(!game.server.leaveClient(this))
+				Console.err("Cannot leave the server.");
+			if(!game.state.removePlayer(username))
+				Console.err("Cannot leave the game.");
 		}
 	}
 
