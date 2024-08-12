@@ -2,10 +2,13 @@ package launcher;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 import javax.imageio.ImageIO;
 
 import game.Display;
+import misc.Console;
 import misc.Constants;
 import networking.ClientCommunicator;
 
@@ -28,14 +31,12 @@ public class Launcher {
 	}
 
 	public static void main(String[] args) {
-		// Display display = new Display();
-		ClientCommunicator communicator = new ClientCommunicator();
-		System.out.println("Connecting to " + Constants.SERVER_ADRESS + " and port " + Constants.SERVER_PORT + "!");
+		Console.log("Connecting to " + Constants.SERVER_ADRESS + " and port " + Constants.SERVER_PORT + "!");
 		try {
-			communicator.connect();
-			System.out.println("Connected successfully!");
-			while(true);
-		} catch(Exception e) {
+			Display display = new Display(new ClientCommunicator());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

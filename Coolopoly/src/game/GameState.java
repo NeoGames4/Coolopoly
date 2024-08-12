@@ -6,7 +6,11 @@ import java.util.Random;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import networking.ServerHandler;
+
 public class GameState {
+	
+	private final ServerHandler serverHandler;
 	
 	private final ArrayList<Player> players;
 	
@@ -16,7 +20,8 @@ public class GameState {
 	
 	private final Random random;
 
-	public GameState(ArrayList<Player> players, int currentTurn) {
+	private GameState(ServerHandler serverHandler, ArrayList<Player> players, int currentTurn) {
+		this.serverHandler = serverHandler;
 		this.players = players;
 		this.currentTurn = currentTurn;
 		
@@ -69,6 +74,13 @@ public class GameState {
 			currentTurn = 0;
 	}
 	
+	public Player thisPlayer() {
+		for(Player p : players)
+			if(p.remoteAdress.equals(p))
+				return p;
+		return null;
+	}
+	
 	public Player currentPlayer() {
 		return players.get(currentTurn);
 	}
@@ -84,16 +96,18 @@ public class GameState {
 		} return null;
 	}
 	
-	public JSONObject toJSON() {
-		JSONArray p = new JSONArray();
-		for(Player player : players) {
-			p.put(player.toJSON());
+	public static GameState fromJSON(JSONObject o, ServerHandler serverHandler) {
+		ArrayList<Player> players = new ArrayList<>();
+		JSONArray p = o.getJSONArray("players");
+		for(int i = 0; i<p.length(); i++) {
+			players.add(Player.fromJSON(p.getJSONObject(i)));
 		}
 		
-		return new JSONObject()
-				.put("players", p)
-				.put("current_turn", currentTurn)
-				.put("player_diced", playerDiced.toJSON());
+		GameState state = new GameState(serverHandler, players, o.getInt("current_turn"));
+		
+		state.playerDiced = DiceState.fromJSON(o.getJSONObject("player_diced"));
+		
+		return state;
 	}
 
 }

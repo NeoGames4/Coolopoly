@@ -4,24 +4,19 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import game.Camera;
-import game.CameraState;
 import game.Display;
 import game.Display.UI;
-import game.coolopoly.Player;
+import game.camera.Camera;
+import game.camera.CameraState;
 import launcher.Launcher;
 import misc.Constants;
 
 public class Board extends UIElement {
 	
-	public final Player player;
-	
 	private final BufferedImage boardImage;
 
-	public Board(String playerName) {
+	public Board() {
 		super(0, 0, 0, 0);
-		
-		player = new Player(playerName);
 		
 		boardImage = Launcher.getImage("board.png");
 		width = height = boardImage.getWidth();

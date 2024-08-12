@@ -16,13 +16,20 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import game.camera.Camera;
+import game.camera.CameraState;
+import game.camera.CameraTransitionsBuilder;
 import game.uielements.Board;
+import game.uielements.InfoPanel;
 import game.uielements.UIElement;
 import misc.Constants;
+import networking.ClientCommunicator;
 
 public class Display extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	
+	public final ClientCommunicator server;
 	
 	public final UI ui;
 	
@@ -30,8 +37,10 @@ public class Display extends JFrame {
 	
 	public final Camera camera;
 
-	public Display() {
+	public Display(ClientCommunicator server) {
 		super();
+		
+		this.server = server;
 		
 		setTitle(Constants.GAME_TITLE);
 		// setIconImage();									// TODO
@@ -60,6 +69,8 @@ public class Display extends JFrame {
 		setContentPane(ui);
 		uiElements = new ArrayList<>();
 		
+		uiElements.add(new InfoPanel());
+		
 		addKeyListener(new Controls());
 		setFocusTraversalKeysEnabled(false);
 		setAutoRequestFocus(true);
@@ -75,6 +86,12 @@ public class Display extends JFrame {
 	}
 	
 	public void updateGame() {
+		Player player = server.getServerHandler().getGameState().thisPlayer();
+		
+		if(player == null) {
+			// TODO exit game
+		}
+		
 		if(camera.freeMovement) {
 			// CAMERA MOVEMENT
 			float dx = 0;
@@ -112,12 +129,11 @@ public class Display extends JFrame {
 			if(camera.zoom < Constants.MIN_CAMERA_ZOOM) camera.zoom = Constants.MIN_CAMERA_ZOOM;
 			else if(camera.zoom > Constants.MAX_CAMERA_ZOOM) camera.zoom = Constants.MAX_CAMERA_ZOOM;
 			
-			if(Constants.DEBUG)
-				System.out.println("\nFPS: " + ui.fps + "\nx: " + camera.x + "\ny: " + camera.y + "\nRotation: " + camera.angle + "\nZoom: " + camera.zoom + "\nBoard size: " + ui.board.width + ", " + ui.board.height + "\nPlayer position: " + ui.board.player.position);
+			// if(Constants.DEBUG)
+				// System.out.println("\nFPS: " + ui.fps + "\nx: " + camera.x + "\ny: " + camera.y + "\nRotation: " + camera.angle + "\nZoom: " + camera.zoom + "\nBoard size: " + ui.board.width + ", " + ui.board.height + "\nPlayer position: " + player.getPosition());
 		}
 		
 		if(Controls.TAB_DOWN) {
-			long now = System.currentTimeMillis();
 			CameraTransitionsBuilder tBuilder = new CameraTransitionsBuilder(camera)
 					.withATransitions(
 							new Transition(camera.angle, camera.angle + 270, 1000)
@@ -125,9 +141,9 @@ public class Display extends JFrame {
 			camera.transitionWith(tBuilder.build());
 		}
 		else if(Controls.F_DOWN && (camera.transition == null || camera.transition.isDone())) {
-			ui.board.player.position = (int) (Constants.BOARD_FIELDS_AMOUNT*Math.random());
+			player.setPosition((int) (Constants.BOARD_FIELDS_AMOUNT*Math.random()));
 			
-			CameraState focusPosition = ui.board.getCameraStateFocus(ui.board.player.position);
+			CameraState focusPosition = ui.board.getCameraStateFocus(player.getPosition());
 					
 			long transitionTime = Math.max((long) (Board.distanceBetween(camera.getState().getPosition(), focusPosition.getPosition())*2), 500l);
 			
@@ -148,7 +164,7 @@ public class Display extends JFrame {
 
 		public UI() {
 			super();
-			board = new Board("You");
+			board = new Board();
 		}
 		
 		public void update() {

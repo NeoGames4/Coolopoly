@@ -13,10 +13,12 @@ public class ClientCommunicator {
 	private Socket socket;
 	
 	private InputStream input;
-	
 	private OutputStream output;
+	
+	private ServerHandler handler;
 
-	public ClientCommunicator() {
+	public ClientCommunicator() throws UnknownHostException, IOException {
+		connect();
 	}
 	
 	public ClientCommunicator connect() throws UnknownHostException, IOException {
@@ -25,15 +27,8 @@ public class ClientCommunicator {
 			input	= socket.getInputStream();
 			output	= socket.getOutputStream();
 			
-			try {
-				output.write(1);
-				Thread.sleep(1000);
-				output.write(2);
-				Thread.sleep(5000);
-				output.write(3);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			handler = new ServerHandler(socket, input, output);
+			handler.start();
 		} else throw new RuntimeException("This client is already connected. Please run disconnect() first.");
 		return this;
 	}
@@ -44,9 +39,15 @@ public class ClientCommunicator {
 	
 	public void disconnect() throws IOException {
 		if(isConnected()) {
+			handler.interrupt();
 			socket.close();
 			socket = null;
+			handler = null;
 		}
+	}
+	
+	public ServerHandler getServerHandler() {
+		return handler;
 	}
 
 }
