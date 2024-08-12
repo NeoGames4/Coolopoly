@@ -5,29 +5,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import networking.ClientHandler;
-import networking.ServerCommunicator;
+import networking.ClientConnection;
+import networking.Server;
 
 public class Game {
 	
-	public ServerCommunicator server;
+	public Server server;
 	public GameState state;
 	
 	private boolean start = true;
 	
-	private List<String> names = new ArrayList<>(Arrays.asList(Constants.PLAYER_NAMES));
+	private List<String> freeNames = new ArrayList<>(Arrays.asList(Constants.PLAYER_NAMES));
 
 	public Game(int playersAmount) {
 		ArrayList<Player> players = new ArrayList<>();
 		
 		try {
-			server = new ServerCommunicator(this);
-			server.acceptClients(playersAmount);
+			server = new Server(this, playersAmount);
 			
-			for(ClientHandler c : server.getClients()) {
-				int i = (int) (Math.random() * names.size());
-				players.add(new Player(names.get(i), c.getRemoteAdress()));
-				names.remove(i);
+			for(ClientConnection c : server.getClients()) {
+				int i = (int) (Math.random() * freeNames.size());
+				players.add(new Player(freeNames.get(i), c.getRemoteAdress()));
+				freeNames.remove(i);
 			}
 		} catch(IOException e) {
 			e.printStackTrace();

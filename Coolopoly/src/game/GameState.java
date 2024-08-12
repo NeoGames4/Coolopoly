@@ -6,11 +6,11 @@ import java.util.Random;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import networking.ServerHandler;
+import networking.ServerConnection;
 
 public class GameState {
 	
-	private final ServerHandler serverHandler;
+	private final ServerConnection serverConnection;
 	
 	private final ArrayList<Player> players;
 	
@@ -20,8 +20,8 @@ public class GameState {
 	
 	private final Random random;
 
-	private GameState(ServerHandler serverHandler, ArrayList<Player> players, int currentTurn) {
-		this.serverHandler = serverHandler;
+	private GameState(ServerConnection serverConnection, ArrayList<Player> players, int currentTurn) {
+		this.serverConnection = serverConnection;
 		this.players = players;
 		this.currentTurn = currentTurn;
 		
@@ -96,14 +96,14 @@ public class GameState {
 		} return null;
 	}
 	
-	public static GameState fromJSON(JSONObject o, ServerHandler serverHandler) {
+	public static GameState fromJSON(JSONObject o, ServerConnection connection) {
 		ArrayList<Player> players = new ArrayList<>();
 		JSONArray p = o.getJSONArray("players");
 		for(int i = 0; i<p.length(); i++) {
 			players.add(Player.fromJSON(p.getJSONObject(i)));
 		}
 		
-		GameState state = new GameState(serverHandler, players, o.getInt("current_turn"));
+		GameState state = new GameState(connection, players, o.getInt("current_turn"));
 		
 		state.playerDiced = DiceState.fromJSON(o.getJSONObject("player_diced"));
 		

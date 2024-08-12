@@ -25,14 +25,15 @@ public class Constants {
 			BOARD_FIELD_FOCUS_ZOOM = 0.6f;
 	
 	// NETWORKING
-	public static final int SERVER_PORT = 1337;
+	public static final int INIT_SERVER_PORT = 1337;
 	
-	public static final String SERVER_ADRESS = "localhost";
+	public static final String INIT_SERVER_ADDRESS = "localhost";
 	
 	public static final String	MESSAGE_INTENT_MISC			= "misc",
-								MESSAGE_INTENT_ACTION		= "action",
-								MESSAGE_INTENT_GAME_STATE	= "game_state",
-								MESSAGE_INTENT_EXCEPTION	= "exception";
+								MESSAGE_INTENT_LOG_IN		= "log_in",		// First connection
+								MESSAGE_INTENT_ACTION		= "action",		// Game action
+								MESSAGE_INTENT_GAME_STATE	= "game_state",	// Game state
+								MESSAGE_INTENT_EXCEPTION	= "exception";	// Error message
 
 	public static final String	GAME_ACTION_DICE	= "dice",
 								GAME_ACTION_BUY		= "buy",

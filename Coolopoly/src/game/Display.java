@@ -23,13 +23,13 @@ import game.uielements.Board;
 import game.uielements.InfoPanel;
 import game.uielements.UIElement;
 import misc.Constants;
-import networking.ClientCommunicator;
+import networking.ServerConnection;
 
 public class Display extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final ClientCommunicator server;
+	public final ServerConnection server;
 	
 	public final UI ui;
 	
@@ -37,12 +37,12 @@ public class Display extends JFrame {
 	
 	public final Camera camera;
 
-	public Display(ClientCommunicator server) {
+	public Display(ServerConnection server) {
 		super();
 		
 		this.server = server;
 		
-		setTitle(Constants.GAME_TITLE);
+		setTitle(Constants.GAME_TITLE + " as " + server.getUsername());
 		// setIconImage();									// TODO
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -86,7 +86,11 @@ public class Display extends JFrame {
 	}
 	
 	public void updateGame() {
-		Player player = server.getServerHandler().getGameState().thisPlayer();
+		if(server.getLatestGameState() == null) {
+			return;
+		}
+		
+		Player player = server.getLatestGameState().thisPlayer();
 		
 		if(player == null) {
 			// TODO exit game

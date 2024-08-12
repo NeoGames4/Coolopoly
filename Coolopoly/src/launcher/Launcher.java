@@ -8,9 +8,11 @@ import java.net.UnknownHostException;
 import javax.imageio.ImageIO;
 
 import game.Display;
+import game.uielements.OptionPane;
+import game.uielements.OptionPaneResponse;
 import misc.Console;
 import misc.Constants;
-import networking.ClientCommunicator;
+import networking.ServerConnection;
 
 public class Launcher {
 	
@@ -31,14 +33,66 @@ public class Launcher {
 	}
 
 	public static void main(String[] args) {
-		Console.log("Connecting to " + Constants.SERVER_ADRESS + " and port " + Constants.SERVER_PORT + "!");
-		try {
-			Display display = new Display(new ClientCommunicator());
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		ServerConnection connection;
+		
+		session:
+		while(true) {
+			String username	= "";
+			String serverIp	= Constants.INIT_SERVER_ADDRESS;
+			int serverPort	= Constants.INIT_SERVER_PORT;
+			String lastServerField = serverIp + ":" + serverPort;
+			
+			dialog:
+			while(true) {
+				OptionPaneResponse loginInfo = OptionPane.sendLoginPanel(username, lastServerField);
+				
+				if(loginInfo.result != 0)
+					System.exit(0);
+				
+				username 		= loginInfo.fields.get("username").trim();
+				lastServerField	= loginInfo.fields.get("address");
+				String[] address = lastServerField.split(":");
+			
+				try {				
+					if(address.length < 2 || address[0].length() < 1 || address[1].length() < 1)
+						throw new Exception("Invalid server address. Please separate the server IP and the port by a colon.");
+					
+					serverIp = address[0];
+					
+					try {
+						serverPort = Integer.parseInt(address[1]);
+					} catch(NumberFormatException e) {
+						throw new Exception("Invalid port. The port has to be a number.");
+					}
+				} catch(Exception e) {
+					OptionPane.sendExceptionPanel("Login Error", e.getMessage());
+					continue dialog;
+				}
+				
+				break dialog;
+			}
+			
+			Console.log("Connecting as \"" + username + "\" to " + serverIp + " and port " + serverPort + "...");
+			
+			try {
+				connection = new ServerConnection(username, serverIp, serverPort);
+				
+				while(connection.getLoginState() == ServerConnection.LOGIN_PENDING);
+				
+				Console.log("Reached login state " + connection.getLoginState() + ".");
+				
+				if(connection.getLoginState() == ServerConnection.LOGIN_SUCCESSFULL)
+					break session;
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
 		}
+		
+		Console.log("Launching display...");
+		
+		Display display = new Display(connection);
 	}
 
 }
