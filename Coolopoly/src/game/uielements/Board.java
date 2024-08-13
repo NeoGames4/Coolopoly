@@ -6,10 +6,11 @@ import java.awt.image.BufferedImage;
 
 import game.Display;
 import game.Display.UI;
+import game.GameState;
 import game.camera.Camera;
 import game.camera.CameraState;
-import launcher.Launcher;
 import misc.Constants;
+import misc.design.Design;
 
 public class Board extends UIElement {
 	
@@ -18,7 +19,7 @@ public class Board extends UIElement {
 	public Board() {
 		super(0, 0, 0, 0);
 		
-		boardImage = Launcher.getImage("board.png");
+		boardImage = Design.getImage("board.png");
 		width = height = boardImage.getWidth();
 	}
 	
@@ -66,15 +67,16 @@ public class Board extends UIElement {
 
 	@Override
 	public void paint(Graphics2D g2, Display display) {
+		GameState gameState = display.server.getLatestGameState();
 		Camera camera = display.camera;
 		UI ui = display.ui;
 		
 		float cZoom = (float) Math.exp(camera.zoom);
-		width = height = Math.min(ui.getWidth(), ui.getHeight());
+		width = height = Math.min(ui.getWidth(), ui.getHeight()-Design.INFO_PANEL_HEIGHT);
 		int dWidth = (int) (width*cZoom);
 		
 		float cX = -camera.x*cZoom;
-		float cY = -camera.y*cZoom;
+		float cY = -camera.y*cZoom - Design.INFO_PANEL_HEIGHT/2;
 		
 		double cAngle = Math.toRadians(camera.angle);
 		

@@ -35,7 +35,7 @@ public class Camera {
 		zoom = 0;
 		
 		// OTHERS
-		freeMovement = true;
+		freeMovement = false; // TODO
 	}
 	
 	public void update() {
@@ -196,8 +196,8 @@ public class Camera {
 				
 				float daNorm = Math.abs(t.from-t.to);
 				
-				float minFrom	= t.from > 180 ? -t.from+180 : t.from;
-				float minTo		= t.to > 180   ? -t.to+180   : t.to;
+				float minFrom	= t.from-360;
+				float minTo		= t.to-360;
 				
 				float daMinNorm = Math.abs(minFrom-t.to);
 				float daNormMin = Math.abs(t.from-minTo);

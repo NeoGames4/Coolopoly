@@ -19,6 +19,8 @@ public class GameState {
 	private DiceState playerDiced = null;
 	
 	private final Random random;
+	
+	private boolean isRunning = false;
 
 	private GameState(ServerConnection serverConnection, ArrayList<Player> players, int currentTurn) {
 		this.serverConnection = serverConnection;
@@ -29,14 +31,21 @@ public class GameState {
 	}
 	
 	public DiceState dice() throws GameIllegalMoveException {
-		if(playerDiced == null) {
-			playerDiced = new DiceState(random.nextInt(6)+1, random.nextInt(6)+1);
-			currentPlayer().changePosition(playerDiced.sum());
-			return playerDiced;
-		} else throw new GameIllegalMoveException("You already rolled the dice.");
+		if(!isRunning)
+			throw new GameIllegalMoveException("The game is paused.");
+		
+		if(playerDiced != null)
+			throw new GameIllegalMoveException("You already rolled the dice.");
+		
+		playerDiced = new DiceState(random.nextInt(6)+1, random.nextInt(6)+1);
+		currentPlayer().changePosition(playerDiced.sum());
+		return playerDiced;
 	}
 	
 	public void buy() throws GameIllegalMoveException {
+		if(!isRunning)
+			throw new GameIllegalMoveException("The game is paused.");
+		
 		Player cPlayer = currentPlayer();
 		Property p = getProperty(cPlayer.getPosition());
 		
@@ -65,6 +74,9 @@ public class GameState {
 	}
 	
 	public void nextPlayer() throws GameIllegalMoveException {
+		if(!isRunning)
+			throw new GameIllegalMoveException("The game is paused.");
+		
 		if(!playerDone())
 			throw new GameIllegalMoveException("Please finish your turn first.");
 		
@@ -96,6 +108,14 @@ public class GameState {
 		} return null;
 	}
 	
+	public boolean isRunning() {
+		return isRunning;
+	}
+	
+	public void start() {
+		isRunning = true;
+	}
+	
 	public static GameState fromJSON(JSONObject o, ServerConnection connection) {
 		ArrayList<Player> players = new ArrayList<>();
 		JSONArray p = o.getJSONArray("players");
@@ -106,6 +126,8 @@ public class GameState {
 		GameState state = new GameState(connection, players, o.getInt("current_turn"));
 		
 		state.playerDiced = DiceState.fromJSON(o.optJSONObject("player_diced"));
+		
+		state.isRunning = o.getBoolean("is_running");
 		
 		return state;
 	}

@@ -15,6 +15,8 @@ public class GameState {
 	private DiceState playerDiced = null;
 	
 	private final Random random;
+	
+	private boolean isRunning = false;
 
 	public GameState(ArrayList<Player> players, int currentTurn) {
 		this.players = players;
@@ -24,14 +26,21 @@ public class GameState {
 	}
 	
 	public DiceState dice() throws GameIllegalMoveException {
-		if(playerDiced == null) {
-			playerDiced = new DiceState(random.nextInt(6)+1, random.nextInt(6)+1);
-			currentPlayer().changePosition(playerDiced.sum());
-			return playerDiced;
-		} else throw new GameIllegalMoveException("You already rolled the dice.");
+		if(!isRunning)
+			throw new GameIllegalMoveException("The game is paused.");
+		
+		if(playerDiced != null)
+			throw new GameIllegalMoveException("You already rolled the dice.");
+		
+		playerDiced = new DiceState(random.nextInt(6)+1, random.nextInt(6)+1);
+		currentPlayer().changePosition(playerDiced.sum());
+		return playerDiced;
 	}
 	
 	public void buy() throws GameIllegalMoveException {
+		if(!isRunning)
+			throw new GameIllegalMoveException("The game is paused.");
+		
 		Player cPlayer = currentPlayer();
 		Property p = getProperty(cPlayer.getPosition());
 		
@@ -60,6 +69,9 @@ public class GameState {
 	}
 	
 	public void nextPlayer() throws GameIllegalMoveException {
+		if(!isRunning)
+			throw new GameIllegalMoveException("The game is paused.");
+		
 		if(!playerDone())
 			throw new GameIllegalMoveException("Please finish your turn first.");
 		
@@ -101,6 +113,14 @@ public class GameState {
 		} return null;
 	}
 	
+	public boolean isRunning() {
+		return isRunning;
+	}
+	
+	public void start() {
+		isRunning = true;
+	}
+	
 	public JSONObject toJSON() {
 		JSONArray p = new JSONArray();
 		for(Player player : players) {
@@ -109,7 +129,8 @@ public class GameState {
 		
 		JSONObject o = new JSONObject()
 				.put("players", p)
-				.put("current_turn", currentTurn);
+				.put("current_turn", currentTurn)
+				.put("is_running", isRunning);
 		
 		if(playerDiced != null)
 			o.put("player_diced", playerDiced.toJSON());

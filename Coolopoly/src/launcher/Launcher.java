@@ -1,12 +1,8 @@
 package launcher;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
-
-import javax.imageio.ImageIO;
 
 import game.Display;
 import game.uielements.OptionPane;
@@ -16,22 +12,6 @@ import misc.Constants;
 import networking.ServerConnection;
 
 public class Launcher {
-	
-	public static BufferedImage getImage(String path) {
-		try {
-			BufferedImage image = ImageIO.read(Launcher.class.getResource(path.startsWith(".") ? path.substring(1) : path));
-			if(image != null) return image;
-			throw new Exception("getResource() on getImage(" + path + ") returns null.");
-		} catch(Exception e) {
-			e.printStackTrace();
-			try {
-				return ImageIO.read(new File(path));
-			} catch(Exception exception) {
-				exception.printStackTrace();
-				return null;
-			}
-		}
-	}
 
 	public static void main(String[] args) {
 		ServerConnection connection;
@@ -93,7 +73,7 @@ public class Launcher {
 		
 		Console.log("Launching display...");
 		
-		Display display = new Display(connection);
+		new Display(connection);
 	}
 
 }

@@ -17,12 +17,10 @@ public class Server extends Thread {
 	
 	private final ServerSocket server;
 	
-	public final int clientsLimit;
 	private ArrayList<ClientConnection> clients = new ArrayList<>();
 
-	public Server(Game game, int clientsLimit) throws IOException {
+	public Server(Game game) throws IOException {
 		this.game = game;
-		this.clientsLimit = clientsLimit;
 		
 		Console.log("Booting up...");
 		server = new ServerSocket(Constants.SERVER_PORT);
@@ -33,32 +31,36 @@ public class Server extends Thread {
 	
 	@Override
 	public void run() {
-		Console.log("Looking for " + clientsLimit + " clients...");
+		Console.log("Looking for " + game.playersLimit + " clients...");
 		
 		while(!server.isClosed()) {
 			try {
-				if(clients.size() < clientsLimit) {
-					Socket socket = server.accept();
-					InputStream input	= socket.getInputStream();
-					OutputStream output	= socket.getOutputStream();
+				Socket socket = server.accept();
+				InputStream input	= socket.getInputStream();
+				OutputStream output	= socket.getOutputStream();
+			
+				Console.log("Connected to " + socket.getInetAddress() + " with port " + socket.getPort() + " (" + (clients.size()+1) + " of " + game.playersLimit + ")!");
+			
+				ClientConnection handler = new ClientConnection(game, socket, input, output);
 				
-					Console.log("Connected to " + socket.getInetAddress() + " with port " + socket.getPort() + " (" + (clients.size()+1) + " of " + clientsLimit + ")!");
-				
-					ClientConnection handler = new ClientConnection(game, socket, input, output);
+				if(clients.size() >= game.playersLimit) {
+					handler.sendException("Full house", "The server reached the maximum number of clients.", null);
+					handler.disconnect();
+				} else if(game.state.isRunning()) {
+					handler.sendException("Already running", "The game is already running.", null);
+					handler.disconnect();
+				} else {
 					handler.start();
 					clients.add(handler);
-				} try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) { }
+				}
 			} catch (IOException e) {
 				e.printStackTrace(); // TODO
 			}
 		}
 	}
 	
-	public boolean leaveClient(ClientConnection client) throws IOException {
-		Console.log("Leaving " + client.getRemoteAddress() + " (" + (clients.size()-1) + " left).");
-		client.disconnect();
+	public boolean removeClient(ClientConnection client) throws IOException {
+		Console.log("Removing " + client.getRemoteAddress() + "... (" + (clients.size()-1) + " clients left.)");
 		return clients.remove(client);
 	}
 	

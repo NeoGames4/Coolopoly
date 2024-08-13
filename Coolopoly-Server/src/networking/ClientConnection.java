@@ -28,8 +28,6 @@ public class ClientConnection extends Thread {
 	
 	private BufferedReader input;
 	private PrintWriter output;
-	
-	private boolean isRunning = true;
 
 	public ClientConnection(Game game, Socket socket, InputStream input, OutputStream output) {
 		this.game = game;
@@ -40,7 +38,7 @@ public class ClientConnection extends Thread {
 	
 	@Override
 	public void run() {
-		while(isRunning) {
+		while(socket != null && !socket.isClosed()) {
 			try {
 				JSONObject o = null;
 				try {
@@ -106,15 +104,24 @@ public class ClientConnection extends Thread {
 	}
 	
 	private void handleLogIn(JSONObject o) throws GameIllegalMoveException, JSONException, Exception {
-		String	newName = o.getString("username");
+		String newName = o.getString("username");
 		Console.log("Catched client login request for username \"" + newName + "\".");
 		
+		// PLAYERS MAXIMUM
+		if(game.state.getPlayers().size() >= game.playersLimit) {
+			sendException("Full house", "The server reached the maximum number of clients.", Constants.MESSAGE_INTENT_LOG_IN);
+			disconnect();
+			return;
+		}
+		
+		// USERNAME LENGTH RESTRICTIONS
 		if(newName.length() < 1 || newName.length() > Constants.USERNAME_MAX_LENGTH) {
 			sendException("Invalid username", "The length of an username is required to be between 1 and " + Constants.USERNAME_MAX_LENGTH + " characters. Please try again.", Constants.MESSAGE_INTENT_LOG_IN);
 			disconnect();
 			return;
 		}
 		
+		// USERNAME ALLOWED CHARS
 		for(char c : newName.toCharArray()) {
 			if(!Constants.USERNAME_ALLOWED_CHARS.contains(c + "")) {
 				sendException("Invalid username", "The character '" + c + "' is not allowed. Please try again.", Constants.MESSAGE_INTENT_LOG_IN);
@@ -123,6 +130,7 @@ public class ClientConnection extends Thread {
 			}
 		}
 		
+		// USERNAME ALREADY TAKEN
 		for(Player p : game.state.getPlayers()) {
 			if(newName.equalsIgnoreCase(p.name)) {
 				sendException("Username taken", "This username is already taken. Please try again.", Constants.MESSAGE_INTENT_LOG_IN);
@@ -183,20 +191,19 @@ public class ClientConnection extends Thread {
 	}
 	
 	public boolean isConnected() {
-		return socket != null && socket.isConnected();
+		return socket != null && socket.isConnected() && !socket.isClosed();
 	}
 	
 	public void disconnect() throws IOException {
 		if(isConnected()) {
-			Console.log("Disconnecting from user \"" + username + "\" with address " + getRemoteAddress() + "...");
-			isRunning = false;
-			interrupt();
+			Console.log("Disconnecting client \"" + username + "\" with address " + getRemoteAddress() + "...");
 			socket.close();
+			interrupt();
 			socket = null;
-			if(!game.server.leaveClient(this))
-				Console.err("Cannot leave the server.");
+			if(!game.server.removeClient(this))
+				Console.err("Could not find the client in the clients array.");
 			if(!game.state.removePlayer(username))
-				Console.err("Cannot leave the game.");
+				Console.err("Could not find the player in the players array.");
 		}
 	}
 

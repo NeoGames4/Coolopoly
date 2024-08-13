@@ -7,7 +7,7 @@ public class Property {
 	public final int price;
 	public final int pricePerHouse;
 	
-	public final int rent[] = new int[5];
+	public final int rent[] = new int[6];
 	
 	public final int mortage;
 

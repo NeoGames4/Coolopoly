@@ -24,6 +24,9 @@ public class Constants {
 	public static final float BOARD_FIELDS_WIDTH_FACTOR = 0.2f,
 			BOARD_FIELD_FOCUS_ZOOM = 0.6f;
 	
+	// GAME
+	public static final String MONEY_UNIT = "MB";
+	
 	// NETWORKING
 	public static final int INIT_SERVER_PORT = 1337;
 	

@@ -18,7 +18,7 @@ public class Launcher {
 		}
 		
 		try {
-			Game game = new Game(players);
+			new Game(players);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

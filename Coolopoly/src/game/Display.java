@@ -17,10 +17,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import game.camera.Camera;
-import game.camera.CameraState;
-import game.camera.CameraTransitionsBuilder;
 import game.uielements.Board;
 import game.uielements.InfoPanel;
+import game.uielements.OptionPane;
 import game.uielements.UIElement;
 import misc.Constants;
 import networking.ServerConnection;
@@ -48,7 +47,7 @@ public class Display extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(WindowEvent e) {		// TODO
+			public void windowClosing(WindowEvent e) {
 				System.exit(0);
 			}
 		});
@@ -85,6 +84,8 @@ public class Display extends JFrame {
 		}, 50, (int) (1000d/Constants.FPS), TimeUnit.MILLISECONDS);
 	}
 	
+	private long debugCooldown = 0; // TODO
+	
 	public void updateGame() {
 		if(server.getLatestGameState() == null) {
 			return;
@@ -93,7 +94,8 @@ public class Display extends JFrame {
 		Player player = server.getLatestGameState().thisPlayer();
 		
 		if(player == null) {
-			// TODO exit game
+			OptionPane.sendExceptionPanel("Player not found", "Could not find a player with your username.");
+			System.exit(0);
 		}
 		
 		if(camera.freeMovement) {
@@ -137,21 +139,27 @@ public class Display extends JFrame {
 				// System.out.println("\nFPS: " + ui.fps + "\nx: " + camera.x + "\ny: " + camera.y + "\nRotation: " + camera.angle + "\nZoom: " + camera.zoom + "\nBoard size: " + ui.board.width + ", " + ui.board.height + "\nPlayer position: " + player.getPosition());
 		}
 		
-		if(Controls.TAB_DOWN) {
-			CameraTransitionsBuilder tBuilder = new CameraTransitionsBuilder(camera)
-					.withATransitions(
-							new Transition(camera.angle, camera.angle + 270, 1000)
-					);
-			camera.transitionWith(tBuilder.build());
-		}
-		else if(Controls.F_DOWN && (camera.transition == null || camera.transition.isDone())) {
-			player.setPosition((int) (Constants.BOARD_FIELDS_AMOUNT*Math.random()));
+		if(Controls.TAB_DOWN)
+			camera.transitionTo(camera.getState().withX(0).withY(0).withZoom(0).withAngle(0), 350);
+		else if(!camera.freeMovement)
+			camera.transitionTo(ui.board.getCameraStateFocus(player.getPosition()), 500);
+
+		if(Controls.F_DOWN && Constants.DEBUG && System.currentTimeMillis()-debugCooldown > 200) {
+			debugCooldown = System.currentTimeMillis();
 			
-			CameraState focusPosition = ui.board.getCameraStateFocus(player.getPosition());
+			player.changePosition(1);
+			
+			try {
+				player.changeMoney(100);
+			} catch (GameIllegalMoveException e) {
+				e.printStackTrace();
+			}
+			
+			/*CameraState focusPosition = ui.board.getCameraStateFocus(player.getPosition());
 				
 			long transitionTime = Math.max((long) (Board.distanceBetween(camera.getState().getPosition(), focusPosition.getPosition())*2), 500l);
 			
-			camera.transitionTo(focusPosition, transitionTime);
+			camera.transitionTo(focusPosition, transitionTime);*/
 		}
 		
 		camera.update();
