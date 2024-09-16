@@ -4,6 +4,8 @@ https://github.com/user-attachments/assets/18343d4d-902b-472b-809c-429e26981495
 
 Coolopoly is a board game similar to the classic [Monopoly game](https://en.wikipedia.org/wiki/Monopoly_(game)).
 
+This program was written for a programming competition and is therefore provisional in some places. (See below.)
+
 ## How To Run The Client
 1. Download `Coolopoly.jar` from the [latest release](https://github.com/NeoGames4/Coolopoly/releases).
 2. Open your shell and run the client using `java -jar [path to Coolopoly.jar]`.
@@ -23,3 +25,7 @@ Coolopoly is a board game similar to the classic [Monopoly game](https://en.wiki
 5. Use the red button in the bottom right corner to dice and continue to the next player.
 6. Use the green shopping cart button to buy a property.
 7. Use the green arrow down button to manage your properties and to buy houses/servers.
+
+## To Be Improved
+1. The port is currently still stored as a constant in the program code. It should be passed as an argument.
+2. Community/Chance card dialogs are only displayed for the first player.
